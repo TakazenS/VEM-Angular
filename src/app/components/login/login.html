@@ -1,0 +1,26 @@
+<div class="login-wrapper">
+  <section class="bg-login"></section>
+  <div class="login-card">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" formControlName="email" placeholder="">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" formControlName="password" placeholder="">
+      </div>
+
+      @if (errorMessage()) {
+        <p class="error-message">{{ errorMessage() }}</p>
+      }
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="loginForm.invalid" class="btn-submit">
+          SE CONNECTER
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
