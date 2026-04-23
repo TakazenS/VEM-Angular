@@ -19,6 +19,12 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/user`, { headers });
   }
 
+  getContacts(): Observable<any> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get(`${this.apiUrl}/contact`, { headers });
+  }
+
   saveToken(token: string): void {
     localStorage.setItem('auth_token', token);
   }

@@ -1,1 +1,73 @@
-<p>contact-component works!</p>
+<div class="contact-page-container">
+  @if (user()) {
+    <app-header [title]="headerTitle" [showBackButton]="true" backRoute="/dashboard" [user]="user()" />
+
+    <main class="contact-content">
+      @if (isLoading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Chargement des demandes...</p>
+        </div>
+      } @else {
+        @if (!selectedContact()) {
+          <div class="contact-grid">
+            @for (contact of contacts(); track contact.id) {
+              <div class="contact-card" (click)="selectContact(contact)">
+                <div class="card-line">
+                  <span class="badge">From :</span>
+                  <span class="text">
+                    {{ contact.email }}
+                    ({{ contact.name }})
+                  </span>
+                </div>
+                <div class="card-line">
+                  <span class="badge">Tel :</span>
+                  <span class="text">{{ contact.tel || 'Non fourni' }}</span>
+                </div>
+                <div class="card-line subject">
+                  <strong>Objet : {{ contact.object }}</strong>
+                </div>
+                <div class="card-line content-preview">
+                  <span class="underline">Contenu :</span>
+                  <p>
+                    {{ contact.corps.length > 150 ? (contact.corps | slice:0:150) + '...' : contact.corps }}
+                  </p>
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-state">
+                <p>Aucune demande de contact trouvée.</p>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="detail-view">
+            <button class="btn-back-list" (click)="backToList()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              Retour à la liste
+            </button>
+            <div class="detail-card">
+              <div class="detail-line">
+                <span class="badge">From :</span>
+                <span class="text">
+                  {{ selectedContact()?.email }}
+                  ({{ selectedContact()?.name }})
+                </span>
+              </div>
+              <div class="detail-line">
+                <span class="badge">Tel :</span>
+                <span class="text">{{ selectedContact()?.tel || 'Non fourni' }}</span>
+              </div>
+              <div class="detail-line subject">
+                <strong>Objet : {{ selectedContact()?.object }}</strong>
+              </div>
+              <div class="detail-content">
+                <p>{{ selectedContact()?.corps }}</p>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </main>
+  }
+</div>

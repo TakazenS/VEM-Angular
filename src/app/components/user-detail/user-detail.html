@@ -1,0 +1,27 @@
+<div class="dashboard-container">
+  <nav class="tabs">
+    <button [class.active]="activeTab() === 'profile'" (click)="setTab('profile')">Profil</button>
+    <button [class.active]="activeTab() === 'contact'" (click)="setTab('contact')">Contacts</button>
+    <button class="logout" (click)="logout()">Déconnexion</button>
+  </nav>
+
+  <div class="content">
+    @if (activeTab() === 'profile') {
+      <div class="profile-view">
+        @if (user()) {
+          <h1>Bonjour, {{ user().name }} {{ user().prenom }}</h1>
+          <div class="user-info">
+            <p><strong>Email :</strong> {{ user().email }}</p>
+            <p><strong>Rôle :</strong> {{ user().role }}</p>
+          </div>
+        } @else {
+          <p>Chargement du profil...</p>
+        }
+      </div>
+    }
+
+    @if (activeTab() === 'contact') {
+      <app-contact />
+    }
+  </div>
+</div>

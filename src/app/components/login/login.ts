@@ -35,7 +35,7 @@ export class LoginComponent {
           }
         },
         error: (err) => {
-          this.errorMessage.set('Une erreur est survenue.');
+          this.errorMessage.set('Identifiants non reconnu.');
         }
       });
     }

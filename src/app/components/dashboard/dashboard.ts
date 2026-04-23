@@ -1,11 +1,12 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { HeaderComponent } from '../header/header';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [],
+  imports: [HeaderComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -13,6 +14,12 @@ export class DashboardComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   user = signal<any>(null);
+
+  headerTitle = computed(() => {
+    const u = this.user();
+    if (!u) return 'Chargement...';
+    return `Bonjour, <span style="font-weight: 700; color: #1a202c;">${u.name} ${u.prenom}</span>`;
+  });
 
   ngOnInit(): void {
     this.authService.getUser().subscribe({
@@ -24,11 +31,6 @@ export class DashboardComponent implements OnInit {
         this.router.navigate(['/']);
       }
     });
-  }
-
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/']);
   }
 
   getNewsPage(): void {

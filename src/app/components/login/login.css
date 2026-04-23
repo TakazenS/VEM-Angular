@@ -55,13 +55,11 @@
 .error-message {
   color: #e53e3e;
   font-size: 0.85rem;
-  margin-bottom: 1rem;
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 2rem;
 }
 
 .btn-submit {
