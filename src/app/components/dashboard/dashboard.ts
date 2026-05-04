@@ -13,7 +13,9 @@ import { HeaderComponent } from '../header/header';
 export class DashboardComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  
   user = signal<any>(null);
+  contactCount = signal<number>(0);
 
   headerTitle = computed(() => {
     const u = this.user();
@@ -23,13 +25,38 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.getUser().subscribe({
-      next: (data) => {
-        this.user.set(data);
+      next: (userData) => {
+        const user = userData.user || userData;
+        this.user.set(user);
+        this.loadContactCount(user.role);
       },
       error: (err) => {
         console.error('Error fetching user data', err);
         this.router.navigate(['/']);
       }
+    });
+  }
+
+  loadContactCount(userRole: string): void {
+    const allowedRoles = ['administrateur', 'logistique', 'directeur'];
+    if (!allowedRoles.includes(userRole)) return;
+
+    this.authService.getContacts().subscribe({
+      next: (response) => {
+        const rawData = Array.isArray(response) ? response : (response.data || []);
+        
+        let filteredData = rawData;
+        if (userRole !== 'directeur') {
+          filteredData = rawData.filter((contact: any) => {
+            const contactService = contact.service || '';
+            const targetService = (userRole === 'administrateur') ? 'administration' : userRole;
+            return contactService.toLowerCase() === targetService.toLowerCase();
+          });
+        }
+        
+        this.contactCount.set(filteredData.length);
+      },
+      error: (err) => console.error('Error fetching contact count', err)
     });
   }
 

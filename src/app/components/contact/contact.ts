@@ -24,15 +24,39 @@ export class ContactComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.getUser().subscribe({
-      next: (data) => this.user.set(data),
+      next: (userData) => {
+        // En fonction de la structure de retour de getUser
+        const user = userData.user || userData;
+        this.user.set(user);
+        this.loadContacts(user.role);
+      },
       error: () => this.router.navigate(['/'])
     });
+  }
 
+  loadContacts(userRole: string): void {
     this.authService.getContacts().subscribe({
       next: (response) => {
-        // Extraction des données (tableau direct ou propriété .data)
-        const data = Array.isArray(response) ? response : (response.data || []);
-        this.contacts.set(data);
+        const rawData = Array.isArray(response) ? response : (response.data || []);
+
+        // DEBUG: Vérifiez ce log dans F12 pour voir le nom exact du champ de rôle
+        console.log('Données reçues de l\'API:', rawData[0]);
+        console.log('Rôle de l\'utilisateur actuel:', userRole);
+
+        let filteredData = rawData;
+
+        if (userRole !== 'directeur') {
+          filteredData = rawData.filter((contact: any) => {
+            const contactService = contact.service || '';
+            
+            // On mappe 'administrateur' vers 'administration' pour la comparaison
+            const targetService = (userRole === 'administrateur') ? 'administration' : userRole;
+            
+            return contactService.toLowerCase() === targetService.toLowerCase();
+          });
+        }
+
+        this.contacts.set(filteredData);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -44,6 +68,22 @@ export class ContactComponent implements OnInit {
 
   selectContact(contact: any): void {
     this.selectedContact.set(contact);
+  }
+
+  deleteContact(event: Event, id: number): void {
+    event.stopPropagation(); // Empêche l'ouverture du détail
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette demande ?')) {
+      this.authService.deleteContact(id).subscribe({
+        next: () => {
+          // Rafraîchir la liste localement
+          this.contacts.update(prev => prev.filter(c => c.id !== id));
+          if (this.selectedContact()?.id === id) {
+            this.selectedContact.set(null);
+          }
+        },
+        error: (err) => console.error('Erreur lors de la suppression', err)
+      });
+    }
   }
 
   backToList(): void {

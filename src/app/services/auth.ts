@@ -25,6 +25,12 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/contact`, { headers });
   }
 
+  deleteContact(id: number): Observable<any> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.delete(`${this.apiUrl}/contact/destroy/${id}`, { headers });
+  }
+
   saveToken(token: string): void {
     localStorage.setItem('auth_token', token);
   }

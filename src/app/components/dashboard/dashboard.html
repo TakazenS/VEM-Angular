@@ -13,14 +13,19 @@
           <button class="btn-card" (click)="getNewsPage()">VOIR PLUS</button>
         </div>
 
-        <div class="action-card">
-          <div class="card-icon">
-            <img src="/contact.svg" height="45" width="45" alt="contact-img">
+        @if (user().role === 'directeur' || user().role === 'administrateur' || user().role === 'logistique') {
+          <div class="action-card">
+            @if (contactCount() > 0) {
+              <div class="counter-badge">{{ contactCount() }}</div>
+            }
+            <div class="card-icon">
+              <img src="/contact.svg" height="45" width="45" alt="contact-img">
+            </div>
+            <h2>Demandes de contact</h2>
+            <p>Consultez les messages envoyés.</p>
+            <button class="btn-card" (click)="getContactPage()">VOIR PLUS</button>
           </div>
-          <h2>Demandes de contact</h2>
-          <p>Consultez les messages envoyés.</p>
-          <button class="btn-card" (click)="getContactPage()">VOIR PLUS</button>
-        </div>
+        }
       </div>
     </main>
   } @else {
