@@ -19,6 +19,9 @@ export class ContactComponent implements OnInit {
   contacts = signal<any[]>([]);
   selectedContact = signal<any | null>(null);
   isLoading = signal(true);
+  showDeleteModal = signal(false);
+  contactToDeleteId = signal<number | null>(null);
+  deleteSuccess = signal(false);
 
   headerTitle = 'Demandes de Contact';
 
@@ -71,17 +74,37 @@ export class ContactComponent implements OnInit {
   }
 
   deleteContact(event: Event, id: number): void {
-    event.stopPropagation(); // Empêche l'ouverture du détail
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette demande ?')) {
+    event.stopPropagation();
+    this.contactToDeleteId.set(id);
+    this.showDeleteModal.set(true);
+  }
+
+  cancelDelete(): void {
+    this.showDeleteModal.set(false);
+    this.contactToDeleteId.set(null);
+  }
+
+  confirmDelete(): void {
+    const id = this.contactToDeleteId();
+    if (id !== null) {
       this.authService.deleteContact(id).subscribe({
         next: () => {
-          // Rafraîchir la liste localement
           this.contacts.update(prev => prev.filter(c => c.id !== id));
           if (this.selectedContact()?.id === id) {
             this.selectedContact.set(null);
           }
+          this.cancelDelete();
+          
+          // Affichage du message de succès pendant 3 secondes
+          this.deleteSuccess.set(true);
+          setTimeout(() => {
+            this.deleteSuccess.set(false);
+          }, 3000);
         },
-        error: (err) => console.error('Erreur lors de la suppression', err)
+        error: (err) => {
+          console.error('Erreur lors de la suppression', err);
+          this.cancelDelete();
+        }
       });
     }
   }

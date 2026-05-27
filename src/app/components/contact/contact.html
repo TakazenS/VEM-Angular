@@ -3,6 +3,12 @@
     <app-header [title]="headerTitle" [showBackButton]="true" backRoute="/dashboard" [user]="user()" />
 
     <main class="contact-content">
+      @if (deleteSuccess()) {
+        <div class="success-banner">
+          Demande de contact supprimée avec succès.
+        </div>
+      }
+
       @if (isLoading()) {
         <div class="loading-state">
           <div class="spinner"></div>
@@ -78,5 +84,23 @@
         }
       }
     </main>
+  }
+
+  <!-- Modal de confirmation de suppression -->
+  @if (showDeleteModal()) {
+    <div class="modal-overlay" (click)="cancelDelete()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Confirmer la suppression</h3>
+        </div>
+        <div class="modal-body">
+          <p>Êtes-vous sûr de vouloir supprimer cette demande de contact ? Cette action est irréversible.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" (click)="cancelDelete()">Annuler</button>
+          <button class="btn-confirm" (click)="confirmDelete()">Confirmer la suppression</button>
+        </div>
+      </div>
+    </div>
   }
 </div>
