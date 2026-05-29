@@ -16,6 +16,29 @@
         </div>
       } @else {
         @if (!selectedContact()) {
+          @if (user().role === 'directeur') {
+            <div class="filter-actions">
+              <button 
+                class="btn-filter" 
+                [class.active]="filter() === 'all'"
+                (click)="setFilter('all')">
+                Tout
+              </button>
+              <button 
+                class="btn-filter" 
+                [class.active]="filter() === 'administration'"
+                (click)="setFilter('administration')">
+                Administration
+              </button>
+              <button 
+                class="btn-filter" 
+                [class.active]="filter() === 'logistique'"
+                (click)="setFilter('logistique')">
+                Logistique
+              </button>
+            </div>
+          }
+
           <div class="contact-grid">
             @for (contact of contacts(); track contact.id) {
               <div class="contact-card" (click)="selectContact(contact)">

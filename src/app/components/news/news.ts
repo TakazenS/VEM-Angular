@@ -56,6 +56,7 @@ export class NewsComponent implements OnInit {
 
   editNews(event: Event, id: number): void {
     event.stopPropagation();
+    if (this.user()?.role === 'utilisateur') return;
     this.router.navigate(['/actualites/edit', id]);
   }
 
@@ -65,6 +66,7 @@ export class NewsComponent implements OnInit {
 
   openDeleteModal(event: Event, id: number): void {
     event.stopPropagation();
+    if (this.user()?.role === 'utilisateur') return;
     this.newsToDeleteId.set(id);
     this.showDeleteModal.set(true);
   }

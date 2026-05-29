@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
@@ -16,7 +16,8 @@ export class ContactComponent implements OnInit {
   private readonly router = inject(Router);
 
   user = signal<any>(null);
-  contacts = signal<any[]>([]);
+  allContacts = signal<any[]>([]);
+  filter = signal<'all' | 'administration' | 'logistique'>('all');
   selectedContact = signal<any | null>(null);
   isLoading = signal(true);
   showDeleteModal = signal(false);
@@ -25,41 +26,44 @@ export class ContactComponent implements OnInit {
 
   headerTitle = 'Demandes de Contact';
 
+  contacts = computed(() => {
+    const rawData = this.allContacts();
+    const currentFilter = this.filter();
+    const userRole = this.user()?.role;
+
+    if (!userRole) return [];
+
+    if (userRole === 'directeur') {
+      if (currentFilter === 'all') return rawData;
+      return rawData.filter((contact: any) => 
+        (contact.service || '').toLowerCase() === currentFilter.toLowerCase()
+      );
+    }
+
+    // Pour les autres rôles, on filtre toujours par leur service
+    return rawData.filter((contact: any) => {
+      const contactService = contact.service || '';
+      const targetService = (userRole === 'administrateur') ? 'administration' : userRole;
+      return contactService.toLowerCase() === targetService.toLowerCase();
+    });
+  });
+
   ngOnInit(): void {
     this.authService.getUser().subscribe({
       next: (userData) => {
-        // En fonction de la structure de retour de getUser
         const user = userData.user || userData;
         this.user.set(user);
-        this.loadContacts(user.role);
+        this.loadContacts();
       },
       error: () => this.router.navigate(['/'])
     });
   }
 
-  loadContacts(userRole: string): void {
+  loadContacts(): void {
     this.authService.getContacts().subscribe({
       next: (response) => {
         const rawData = Array.isArray(response) ? response : (response.data || []);
-
-        // DEBUG: Vérifiez ce log dans F12 pour voir le nom exact du champ de rôle
-        console.log('Données reçues de l\'API:', rawData[0]);
-        console.log('Rôle de l\'utilisateur actuel:', userRole);
-
-        let filteredData = rawData;
-
-        if (userRole !== 'directeur') {
-          filteredData = rawData.filter((contact: any) => {
-            const contactService = contact.service || '';
-            
-            // On mappe 'administrateur' vers 'administration' pour la comparaison
-            const targetService = (userRole === 'administrateur') ? 'administration' : userRole;
-            
-            return contactService.toLowerCase() === targetService.toLowerCase();
-          });
-        }
-
-        this.contacts.set(filteredData);
+        this.allContacts.set(rawData);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -67,6 +71,10 @@ export class ContactComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  setFilter(newFilter: 'all' | 'administration' | 'logistique'): void {
+    this.filter.set(newFilter);
   }
 
   selectContact(contact: any): void {
@@ -89,13 +97,12 @@ export class ContactComponent implements OnInit {
     if (id !== null) {
       this.authService.deleteContact(id).subscribe({
         next: () => {
-          this.contacts.update(prev => prev.filter(c => c.id !== id));
+          this.allContacts.update(prev => prev.filter(c => c.id !== id));
           if (this.selectedContact()?.id === id) {
             this.selectedContact.set(null);
           }
           this.cancelDelete();
           
-          // Affichage du message de succès pendant 3 secondes
           this.deleteSuccess.set(true);
           setTimeout(() => {
             this.deleteSuccess.set(false);

@@ -62,6 +62,7 @@ export class NewsDetailComponent implements OnInit {
   }
 
   openDeleteModal(): void {
+    if (this.user()?.role === 'utilisateur') return;
     this.showDeleteModal.set(true);
   }
 
@@ -70,6 +71,7 @@ export class NewsDetailComponent implements OnInit {
   }
 
   confirmDelete(): void {
+    if (this.user()?.role === 'utilisateur') return;
     const newsItem = this.news();
     if (newsItem && newsItem.id) {
       this.authService.deleteNews(newsItem.id).subscribe({
@@ -85,6 +87,7 @@ export class NewsDetailComponent implements OnInit {
   }
 
   editNews(): void {
+    if (this.user()?.role === 'utilisateur') return;
     const newsItem = this.news();
     if (newsItem && newsItem.id) {
       this.router.navigate(['/actualites/edit', newsItem.id]);
