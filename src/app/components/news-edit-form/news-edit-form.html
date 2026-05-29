@@ -1,0 +1,51 @@
+<div class="news-form-container">
+  @if (user()) {
+    <app-header [title]="headerTitle" [showBackButton]="true" backRoute="/actualites" [user]="user()" />
+
+    <main class="form-content">
+      @if (isLoading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Chargement des données...</p>
+        </div>
+      } @else {
+        <div class="form-card">
+          <form (ngSubmit)="onSubmit()" #newsForm="ngForm">
+            <div class="form-group">
+              <label for="titre">Titre</label>
+              <input 
+                type="text" 
+                id="titre" 
+                name="titre" 
+                [(ngModel)]="newsData.titre" 
+                required 
+                placeholder="Entrez le titre de l'actualité"
+                class="form-control"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="content">Contenu</label>
+              <textarea 
+                id="content" 
+                name="content" 
+                [(ngModel)]="newsData.content" 
+                required 
+                placeholder="Rédigez le contenu ici..."
+                class="form-control"
+                rows="12"
+              ></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" (click)="cancel()">Annuler</button>
+              <button type="submit" class="btn-submit" [disabled]="!newsForm.form.valid">
+                Enregistrer les modifications
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+    </main>
+  }
+</div>

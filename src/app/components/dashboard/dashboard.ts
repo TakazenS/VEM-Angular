@@ -61,7 +61,7 @@ export class DashboardComponent implements OnInit {
   }
 
   getNewsPage(): void {
-    this.router.navigate(['/news']);
+    this.router.navigate(['/actualites']);
   }
 
   getContactPage(): void {

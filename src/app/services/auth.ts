@@ -25,6 +25,36 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/contact`, { headers });
   }
 
+  getNews(): Observable<any> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get(`${this.apiUrl}/actualites/get`, { headers });
+  }
+
+  getNewsById(id: number): Observable<any> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get(`${this.apiUrl}/actualites/get/${id}`, { headers });
+  }
+
+  postNews(newsData: any): Observable<any> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post(`${this.apiUrl}/actualites/post`, newsData, { headers });
+  }
+
+  updateNews(id: number, newsData: any): Observable<any> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.put(`${this.apiUrl}/actualites/update/${id}`, newsData, { headers });
+  }
+
+  deleteNews(id: number): Observable<any> {
+    const token = this.getToken();
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.delete(`${this.apiUrl}/actualites/destroy/${id}`, { headers });
+  }
+
   deleteContact(id: number): Observable<any> {
     const token = this.getToken();
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
